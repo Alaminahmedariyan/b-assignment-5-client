@@ -120,6 +120,16 @@ export async function loginAction(
     const decodedToken = jwtDecode<JwtPayloadWithRole>(result.data.accessToken);
     const userRole = decodedToken?.role;
 
+    // If middleware bounced the person here from a protected page, send
+    // them back to where they were headed instead of the role default —
+    // but only if that path actually matches their role, otherwise fall
+    // through to the normal role-based redirect.
+    const redirectTo = formData.get('redirect')?.toString();
+
+    if (redirectTo && redirectTo.startsWith('/')) {
+      redirect(redirectTo);
+    }
+
     if (userRole === 'ADMIN') {
       redirect('/admin');
     }

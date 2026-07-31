@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, LockKeyhole } from 'lucide-react';
@@ -36,6 +37,9 @@ const initialState: AuthActionState = {
 };
 
 export function LoginForm() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect');
+
   const [state, formAction, pending] = useActionState(
     loginAction,
     initialState,
@@ -67,6 +71,7 @@ export function LoginForm() {
     const formData = new FormData();
     formData.append('email', values.email);
     formData.append('password', values.password);
+    if (redirectTo) formData.append('redirect', redirectTo);
     formAction(formData);
   };
 
