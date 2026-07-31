@@ -99,6 +99,7 @@ export function GearBookingCard({
       );
       router.push(`/dashboard/rentals/${orderId}/pay`);
     } catch (error) {
+      console.error('Rental request failed:', error);
       toast.error(
         error instanceof Error
           ? error.message
@@ -209,7 +210,7 @@ export function GearBookingCard({
 
         <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
           <ShieldCheck className="size-3.5" />
-          {"You'll"} pay after the order is created, from your dashboard.
+          You'll pay after the order is created, from your dashboard.
         </p>
       </form>
     </div>
