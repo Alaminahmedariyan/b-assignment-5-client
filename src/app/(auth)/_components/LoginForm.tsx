@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useTransition } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -45,6 +45,8 @@ export function LoginForm() {
     initialState,
   );
 
+  const [, startTransition] = useTransition();
+
   const {
     register,
     handleSubmit,
@@ -72,7 +74,10 @@ export function LoginForm() {
     formData.append('email', values.email);
     formData.append('password', values.password);
     if (redirectTo) formData.append('redirect', redirectTo);
-    formAction(formData);
+
+    startTransition(() => {
+      formAction(formData);
+    });
   };
 
   return (
@@ -124,7 +129,7 @@ export function LoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="your email"
               autoComplete="email"
               aria-invalid={Boolean(errors.email)}
               className="h-11 bg-background/60 transition-all focus-visible:ring-2"

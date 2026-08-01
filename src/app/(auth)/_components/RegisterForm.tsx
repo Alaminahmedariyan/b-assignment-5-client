@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -47,6 +47,8 @@ export function RegisterForm() {
     initialState,
   );
 
+  const [, startTransition] = useTransition();
+
   const {
     register,
     handleSubmit,
@@ -89,7 +91,9 @@ export function RegisterForm() {
     if (values.phone) formData.append('phone', values.phone);
     if (values.address) formData.append('address', values.address);
 
-    formAction(formData);
+    startTransition(() => {
+      formAction(formData);
+    });
   };
 
   return (
@@ -146,7 +150,7 @@ export function RegisterForm() {
             <Input
               id="name"
               type="text"
-              placeholder="John Doe"
+              placeholder="your name"
               autoComplete="name"
               disabled={pending}
               aria-invalid={Boolean(errors.name)}
@@ -163,7 +167,7 @@ export function RegisterForm() {
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="your email"
               autoComplete="email"
               disabled={pending}
               aria-invalid={Boolean(errors.email)}
@@ -205,7 +209,7 @@ export function RegisterForm() {
             />
             {role === 'PROVIDER' && (
               <p className="text-xs text-muted-foreground">
-                Shown to customers as your gear's pickup location.
+                Shown to customers as your {"gear's"} pickup location.
               </p>
             )}
             {errors.address && (
