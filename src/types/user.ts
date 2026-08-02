@@ -1,13 +1,6 @@
-export type UserRole =
-  | 'CUSTOMER'
-  | 'PROVIDER'
-  | 'ADMIN';
+export type UserRole = "CUSTOMER" | "PROVIDER" | "ADMIN";
 
-export type UserStatus =
-  | 'ACTIVE'
-  | 'INACTIVE'
-  | 'BLOCKED'
-  | 'SUSPENDED';
+export type UserStatus = "ACTIVE" | "INACTIVE" | "BLOCKED" | "SUSPENDED";
 
 export interface User {
   id: string;
@@ -21,6 +14,8 @@ export interface User {
   address?: string | null;
 
   nidUrl?: string | null;
+  
+  image?: string | null;
 
   role: UserRole;
 

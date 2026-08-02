@@ -13,19 +13,33 @@ export async function PATCH(request: Request) {
       { status: 401 },
     );
   }
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return NextResponse.json(
+      { success: false, statusCode: 400, message: 'Invalid form data.' },
+      { status: 400 },
+    );
+  }
 
-  const body = await request.json();
+  try {
+    const response = await fetch(`${env.backendApiUrl}/api/v1/users/me`, {
+      method: 'PATCH',
+      headers: {
+        Cookie: `accessToken=${accessToken}`,
+      },
+      body: formData,
+    });
 
-  const response = await fetch(`${env.backendApiUrl}/api/v1/users/me`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Cookie: `accessToken=${accessToken}`,
-    },
-    body: JSON.stringify(body),
-  });
+    const data = await response.json();
 
-  const data = await response.json();
-
-  return NextResponse.json(data, { status: response.status });
+    return NextResponse.json(data, { status: response.status });
+  } catch (error) {
+    console.error('Profile PATCH proxy failed:', error);
+    return NextResponse.json(
+      { success: false, statusCode: 502, message: 'Backend unreachable.' },
+      { status: 502 },
+    );
+  }
 }

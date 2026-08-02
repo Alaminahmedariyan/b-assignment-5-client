@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -12,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import type { UserProfileDetail } from '@/types/profile';
+
 import {
   profileSchema,
   type ProfileFormValues,
@@ -21,9 +23,19 @@ interface ProfileFormProps {
   user: UserProfileDetail;
 }
 
-export function ProfileForm({ user }: ProfileFormProps) {
+export function ProfileForm({
+  user,
+}: ProfileFormProps) {
   const router = useRouter();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [preview, setPreview] = useState(
+    user.image ?? '',
+  );
+
+  const [imageFile, setImageFile] =
+    useState<File | null>(null);
 
   const {
     register,
@@ -39,31 +51,73 @@ export function ProfileForm({ user }: ProfileFormProps) {
     },
   });
 
-  const onValidSubmit = async (values: ProfileFormValues) => {
+  const handleImageChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setImageFile(file);
+    setPreview(URL.createObjectURL(file));
+  };
+
+  const onValidSubmit = async (
+    values: ProfileFormValues,
+  ) => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: values.name,
-          phone: values.phone || undefined,
-          address: values.address || undefined,
-        }),
-      });
+      const formData = new FormData();
 
-      const data = await response.json();
+      formData.append('name', values.name);
+      formData.append(
+        'phone',
+        values.phone || '',
+      );
+      formData.append(
+        'address',
+        values.address || '',
+      );
 
-      if (!response.ok || !data.success) {
-        throw new Error(data?.message ?? 'Failed to update profile.');
+      if (imageFile) {
+        formData.append(
+          'image',
+          imageFile,
+        );
       }
 
-      toast.success('Profile updated.');
+      const response = await fetch(
+        '/api/profile',
+        {
+          method: 'PATCH',
+          body: formData,
+        },
+      );
+
+      const data =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data?.message ??
+            'Failed to update profile.',
+        );
+      }
+
+      toast.success(
+        'Profile updated successfully.',
+      );
+
       router.refresh();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Something went wrong.',
+        error instanceof Error
+          ? error.message
+          : 'Something went wrong.',
       );
     } finally {
       setIsSubmitting(false);
@@ -72,54 +126,124 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
   return (
     <form
-      onSubmit={handleSubmit(onValidSubmit)}
-      noValidate
-      className="space-y-5 rounded-2xl border border-border/60 bg-card p-6 shadow-sm"
+      onSubmit={handleSubmit(
+        onValidSubmit,
+      )}
+      className="space-y-6"
     >
+      {/* Avatar */}
+
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative h-28 w-28 overflow-hidden rounded-full border-2 border-border">
+          {preview ? (
+            <Image
+              src={preview}
+              alt={user.name}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-primary text-3xl font-bold text-primary-foreground">
+              {user.name
+                .charAt(0)
+                .toUpperCase()}
+            </div>
+          )}
+        </div>
+
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={
+            handleImageChange
+          }
+        />
+      </div>
+
+      {/* Email */}
+
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" value={user.email} disabled className="opacity-60" />
+        <Label>Email</Label>
+
+        <Input
+          value={user.email}
+          disabled
+        />
+
         <p className="text-xs text-muted-foreground">
           Email {"can't"} be changed.
         </p>
       </div>
 
+      {/* Name */}
+
       <div className="space-y-2">
-        <Label htmlFor="name">Full name</Label>
+        <Label htmlFor="name">
+          Full name
+        </Label>
+
         <Input
           id="name"
-          aria-invalid={Boolean(errors.name)}
+          aria-invalid={Boolean(
+            errors.name,
+          )}
           {...register('name')}
         />
+
         {errors.name && (
-          <p className="text-xs text-destructive">{errors.name.message}</p>
+          <p className="text-xs text-destructive">
+            {errors.name.message}
+          </p>
         )}
       </div>
 
+      {/* Phone */}
+
       <div className="space-y-2">
-        <Label htmlFor="phone">Phone</Label>
+        <Label htmlFor="phone">
+          Phone
+        </Label>
+
         <Input
           id="phone"
           type="tel"
           placeholder="+880 1XXXXXXXXX"
-          aria-invalid={Boolean(errors.phone)}
+          aria-invalid={Boolean(
+            errors.phone,
+          )}
           {...register('phone')}
         />
+
         {errors.phone && (
-          <p className="text-xs text-destructive">{errors.phone.message}</p>
+          <p className="text-xs text-destructive">
+            {errors.phone.message}
+          </p>
         )}
       </div>
 
+      {/* Address */}
+
       <div className="space-y-2">
-        <Label htmlFor="address">Address</Label>
+        <Label htmlFor="address">
+          Address
+        </Label>
+
         <Input
           id="address"
           placeholder="Your address"
-          aria-invalid={Boolean(errors.address)}
+          aria-invalid={Boolean(
+            errors.address,
+          )}
           {...register('address')}
         />
+
         {errors.address && (
-          <p className="text-xs text-destructive">{errors.address.message}</p>
+          <p className="text-xs text-destructive">
+            {
+              errors.address
+                .message
+            }
+          </p>
         )}
       </div>
 
@@ -129,11 +253,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
         className="cursor-pointer rounded-full"
       >
         {isSubmitting ? (
-          <Loader2 className="mr-1.5 size-4 animate-spin" />
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
-          <Save className="mr-1.5 size-4" />
+          <Save className="mr-2 h-4 w-4" />
         )}
-        Save changes
+
+        Save Changes
       </Button>
     </form>
   );

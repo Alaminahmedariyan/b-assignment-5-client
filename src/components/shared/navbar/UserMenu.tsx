@@ -1,12 +1,12 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
-
 import {
-  ChevronDown,
   LayoutDashboard,
   Settings,
-  User as UserIcon,
+  User,
+  CircleUser,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -20,36 +20,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import type { User } from '@/types/user';
-
+import type { User as UserType } from '@/types/user';
 import { LogoutButton } from '../LogoutButton';
 
 interface UserMenuProps {
-  user: User;
+  user: UserType;
 }
 
-const getUserInitials = (
-  name: string,
-) => {
-  if (!name?.trim()) {
-    return 'U';
-  }
-
-  return name
-    .trim()
-    .split(/\s+/)
-    .map(
-      (part) =>
-        part.charAt(0),
-    )
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-};
-
-const getDashboardPath = (
-  role: User['role'],
-) => {
+const getDashboardPath = (role: UserType['role']) => {
   switch (role) {
     case 'ADMIN':
       return '/admin';
@@ -63,128 +41,103 @@ const getDashboardPath = (
   }
 };
 
-export function UserMenu({
-  user,
-}: UserMenuProps) {
-  const dashboardPath =
-    getDashboardPath(
-      user.role,
-    );
-
-  const initials =
-    getUserInitials(
-      user.name,
-    );
+export function UserMenu({ user }: UserMenuProps) {
+  const dashboardPath = getDashboardPath(user.role);
 
   return (
     <DropdownMenu>
-
-      {/* ============================================================ */}
-      {/* Trigger                                                       */}
-      {/* ============================================================ */}
+      {/* ================= Trigger ================= */}
 
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="cursor-pointer rounded-full px-2"
+          className="h-10 w-10 rounded-full p-0 cursor-pointer"
         >
-          <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-            {initials}
+          <div className="relative h-9 w-9 overflow-hidden rounded-full border border-border">
+            {user.image ? (
+              <Image
+                src={user.image}
+                alt={user.name}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-primary text-primary-foreground">
+                <CircleUser className="h-6 w-6" />
+              </div>
+            )}
           </div>
-
-          <span className="hidden max-w-32 truncate text-sm font-medium sm:block">
-            {user.name}
-          </span>
-
-          <ChevronDown className="hidden size-4 sm:block" />
         </Button>
       </DropdownMenuTrigger>
 
-      {/* ============================================================ */}
-      {/* Dropdown                                                      */}
-      {/* ============================================================ */}
+      {/* ================= Dropdown ================= */}
 
       <DropdownMenuContent
         align="end"
         sideOffset={8}
         className="w-64"
       >
-
-        {/* User Information */}
-
         <DropdownMenuLabel>
-          <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3">
+            <div className="relative h-12 w-12 overflow-hidden rounded-full border">
+              {user.image ? (
+                <Image
+                  src={user.image}
+                  alt={user.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-primary text-primary-foreground">
+                  <CircleUser className="h-8 w-8" />
+                </div>
+              )}
+            </div>
 
-            <span className="truncate font-semibold">
-              {user.name}
-            </span>
+            <div className="flex flex-col">
+              <span className="font-semibold">
+                {user.name}
+              </span>
 
-            <span className="truncate text-xs font-normal text-muted-foreground">
-              {user.email}
-            </span>
+              <span className="text-xs text-muted-foreground">
+                {user.email}
+              </span>
 
-            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              {user.role}
-            </span>
-
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {user.role}
+              </span>
+            </div>
           </div>
         </DropdownMenuLabel>
 
         <DropdownMenuSeparator />
 
-        {/* Dashboard */}
-
-        <DropdownMenuItem
-          asChild
-          className="cursor-pointer"
-        >
+        <DropdownMenuItem asChild className="cursor-pointer">
           <Link href={dashboardPath}>
-            <LayoutDashboard className="mr-2 size-4" />
-
-            <span>
-              Dashboard
-            </span>
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            Dashboard
           </Link>
         </DropdownMenuItem>
 
-        {/* Profile */}
-
-        <DropdownMenuItem
-          asChild
-          className="cursor-pointer"
-        >
+        <DropdownMenuItem asChild className="cursor-pointer">
           <Link href="/profile">
-            <UserIcon className="mr-2 size-4" />
-
-            <span>
-              My Profile
-            </span>
+            <User className="mr-2 h-4 w-4" />
+            My Profile
           </Link>
         </DropdownMenuItem>
 
-        {/* Settings */}
-
-        <DropdownMenuItem
-          asChild
-          className="cursor-pointer"
-        >
+        <DropdownMenuItem asChild className="cursor-pointer">
           <Link href="/settings">
-            <Settings className="mr-2 size-4" />
-
-            <span>
-              Settings
-            </span>
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
           </Link>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 
-        {/* Logout */}
-
         <div className="p-1">
           <LogoutButton />
         </div>
-
       </DropdownMenuContent>
     </DropdownMenu>
   );
