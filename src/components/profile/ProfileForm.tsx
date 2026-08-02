@@ -80,7 +80,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         <Label htmlFor="email">Email</Label>
         <Input id="email" value={user.email} disabled className="opacity-60" />
         <p className="text-xs text-muted-foreground">
-          Email can't be changed.
+          Email {"can't"} be changed.
         </p>
       </div>
 

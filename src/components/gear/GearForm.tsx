@@ -192,17 +192,40 @@ export function GearForm({
             )}
           </div>
 
+          {/* ============================================================
+              Category — FIXED: explicit bg + color-scheme + inline
+              option colors so the dropdown popup renders correctly in
+              dark mode (native <option> popups ignore Tailwind classes
+              in some browsers).
+          ============================================================ */}
           <div className="space-y-2">
             <Label htmlFor="categoryId">Category</Label>
             <select
               id="categoryId"
               aria-invalid={Boolean(errors.categoryId)}
-              className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring [color-scheme:dark]"
               {...register('categoryId')}
             >
-              <option value="">Select a category</option>
+              <option
+                value=""
+                className="bg-background text-foreground"
+                style={{
+                  backgroundColor: 'var(--background)',
+                  color: 'var(--foreground)',
+                }}
+              >
+                Select a category
+              </option>
               {categories.map((category) => (
-                <option key={category.id} value={category.id}>
+                <option
+                  key={category.id}
+                  value={category.id}
+                  className="bg-background text-foreground"
+                  style={{
+                    backgroundColor: 'var(--background)',
+                    color: 'var(--foreground)',
+                  }}
+                >
                   {category.name}
                 </option>
               ))}
@@ -314,7 +337,7 @@ export function GearForm({
 
         {fields.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">
-            Optional — e.g. "Sensor: Full-frame", "Weight: 650g"
+            Optional — e.g. {"Sensor: Full-frame"}, {"Weight: 650g"}
           </p>
         ) : (
           <div className="mt-4 space-y-2">
@@ -402,7 +425,7 @@ export function GearForm({
 
       {mode === 'edit' && (
         <p className="text-xs text-muted-foreground">
-          Photos can't be changed from this form yet — delete and
+          Photos {"can't"} be changed from this form yet — delete and
           re-create the listing if you need to update images.
         </p>
       )}
