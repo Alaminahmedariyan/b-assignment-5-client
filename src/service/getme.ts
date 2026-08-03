@@ -1,10 +1,16 @@
 "use server";
 
-import { GetMeResponse, UserProfile } from "@/types/user";
+import { User } from "@/types/user";
 import { cookies } from "next/headers";
 
+interface GetMeResponse {
+  success: boolean;
+  data: {
+    profile: User;
+  };
+}
 
-export const getMe = async (): Promise<UserProfile | null> => {
+export const getMe = async (): Promise<User | null> => {
   try {
     const cookieStore = await cookies();
 
@@ -15,7 +21,7 @@ export const getMe = async (): Promise<UserProfile | null> => {
     }
 
     const response = await fetch(
-      `${process.env.BACKEND_API_URL}/api/users/me`,
+      `${process.env.BACKEND_API_URL}/api/v1/users/me`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

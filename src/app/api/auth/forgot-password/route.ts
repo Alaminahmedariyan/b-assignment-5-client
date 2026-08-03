@@ -18,9 +18,6 @@ export async function POST(request: Request) {
 
     const data = await response.json();
 
-    // 👇 এটা যোগ করুন
-    console.log('Backend Response:', data);
-
     return NextResponse.json(data, {
       status: response.status,
     });

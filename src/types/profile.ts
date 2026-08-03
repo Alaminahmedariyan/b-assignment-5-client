@@ -1,4 +1,4 @@
-import { UserRole, UserStatus } from "./user";
+import { AuthProvider, UserRole, UserStatus } from "./user";
 
 export interface UserProfileDetail {
   id: string;
@@ -10,6 +10,8 @@ export interface UserProfileDetail {
   phone?: string | null;
   address?: string | null;
   nidUrl?: string | null;
+
+  provider: AuthProvider;
 
   role: UserRole;
   status: UserStatus;

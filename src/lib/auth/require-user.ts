@@ -6,7 +6,7 @@ export type UserRole = "CUSTOMER" | "PROVIDER" | "ADMIN";
 export async function requireUser(allowedRoles?: UserRole[]) {
   const response = await getCurrentUser();
 
-  if (!response.success || !response.data) {
+  if (!response || !response.success || !response.data) {
     redirect("/login");
   }
 

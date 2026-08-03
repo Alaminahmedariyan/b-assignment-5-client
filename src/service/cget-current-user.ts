@@ -1,11 +1,10 @@
 import { getCurrentUser } from "./auth.service";
 
-
 export async function getSafeCurrentUser() {
   try {
     const response = await getCurrentUser();
 
-    if (!response.success) {
+    if (!response || !response.success || !response.data) {
       return null;
     }
 

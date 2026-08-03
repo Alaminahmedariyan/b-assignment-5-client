@@ -1,6 +1,12 @@
+export type AuthProvider = "LOCAL" | "GOOGLE";
+
 export type UserRole = "CUSTOMER" | "PROVIDER" | "ADMIN";
 
-export type UserStatus = "ACTIVE" | "INACTIVE" | "BLOCKED" | "SUSPENDED";
+export type UserStatus =
+  | "ACTIVE"
+  | "INACTIVE"
+  | "BLOCKED"
+  | "SUSPENDED";
 
 export interface User {
   id: string;
@@ -13,8 +19,10 @@ export interface User {
 
   address?: string | null;
 
+  provider: AuthProvider;
+
   nidUrl?: string | null;
-  
+
   image?: string | null;
 
   role: UserRole;
