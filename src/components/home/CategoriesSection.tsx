@@ -69,7 +69,7 @@ export async function CategoriesSection() {
   }
 
   return (
-    <section className="relative overflow-hidden border-t bg-muted/20 py-20 sm:py-24">
+    <section id="categories" className="relative overflow-hidden border-t bg-muted/20 py-20 sm:py-24">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10"
