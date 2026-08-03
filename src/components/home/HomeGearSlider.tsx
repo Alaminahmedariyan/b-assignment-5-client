@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star } from 'lucide-react';
+import { PackagePlus, Star } from 'lucide-react';
 
 import type { GearListItem } from '@/types/gear';
 import { formatTaka } from '@/lib/format';
@@ -27,8 +27,44 @@ export function HeroGearSlider({ items }: HeroGearSliderProps) {
     return () => clearInterval(timer);
   }, [items.length]);
 
+  // CHANGED: was `return null` — that left this whole side of the
+  // hero blank whenever no gear exists yet. Now shows a styled
+  // placeholder card in the same frame/shadow as the real slider,
+  // so the layout doesn't visually collapse, plus a CTA nudging the
+  // first provider to list something.
   if (items.length === 0) {
-    return null;
+    return (
+      <div className="relative mx-auto w-full max-w-sm">
+        <div
+          aria-hidden="true"
+          className="absolute -inset-6 -z-10 rounded-[2rem] bg-primary/10 blur-3xl"
+        />
+
+        <div className="relative overflow-hidden rounded-[1.75rem] border border-dashed border-border/60 bg-card shadow-xl">
+          <div className="flex aspect-[4/5] flex-col items-center justify-center gap-4 p-8 text-center">
+            <div className="flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <PackagePlus className="size-7" />
+            </div>
+
+            <div>
+              <h3 className="font-display text-base font-semibold">
+                No gear listed yet
+              </h3>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Be the first to list your equipment and start earning.
+              </p>
+            </div>
+
+            <Link
+              href="/register?as=provider"
+              className="mt-1 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-transform hover:-translate-y-0.5"
+            >
+              List your gear
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -48,7 +48,7 @@ export default async function MyReviewsPage() {
           </p>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
             After a rental is returned, you can leave a review from your
-            rentals page — it'll show up here.
+            rentals page — {"it'll"} show up here.
           </p>
         </div>
       ) : (

@@ -11,8 +11,11 @@ import { HeroSection } from '@/components/home/hero/HeroSection';
 
 async function getFeaturedGear(): Promise<GearListItem[]> {
   try {
+    // Fetch 10 — enough for the hero slider to actually rotate through
+    // a meaningful set. The Featured Gear grid below only shows the
+    // first 6 of these (cleaner 3-column layout), no separate fetch.
     const response = await serverFetch<ApiResponse<GearListItem[]>>(
-      '/api/v1/gears?limit=6&sortBy=createdAt&sortOrder=desc',
+      '/api/v1/gears?limit=10&sortBy=createdAt&sortOrder=desc',
       { cache: 'no-store' },
     );
 
@@ -29,7 +32,7 @@ export default async function HomePage() {
   return (
     <>
       <HeroSection featuredGear={gearItems} />
-      <FeaturedGearSection gearItems={gearItems} />
+      <FeaturedGearSection gearItems={gearItems.slice(0, 6)} />
       <CategoriesSection />
       <HowItWorksSection />
       <WhyGearUpSection />

@@ -14,58 +14,95 @@ interface GoogleLoginResponse {
 }
 
 export async function POST(request: Request) {
-  const { idToken } = await request.json();
+  let body: { idToken?: string };
 
-  if (!idToken) {
+  try {
+    body = await request.json();
+  } catch {
     return NextResponse.json(
-      { success: false, statusCode: 400, message: 'Missing Google token.' },
-      { status: 400 },
+      {
+        success: false,
+        message: 'Invalid request body.',
+      },
+      {
+        status: 400,
+      }
     );
   }
 
-  // Server-to-server call to the backend — no accessToken cookie exists
-  // yet, since this IS the login step.
-  const backendResponse = await fetch(
-    `${env.backendApiUrl}/api/v1/auth/google`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ idToken }),
-    },
-  );
+  const { idToken } = body;
 
-  const data: GoogleLoginResponse = await backendResponse.json();
-
-  if (!backendResponse.ok || !data.success || !data.data) {
-    return NextResponse.json(data, { status: backendResponse.status });
+  if (!idToken) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Missing Google token.',
+      },
+      {
+        status: 400,
+      }
+    );
   }
 
-  // Read tokens straight from the JSON body and set our own cookies —
-  // the same proven approach loginAction already uses for email/password
-  // login, since Set-Cookie headers from a server-to-server fetch don't
-  // reach the browser automatically.
-  const cookieStore = await cookies();
-  const isProduction = process.env.NODE_ENV === 'production';
+  try {
+    const backendResponse = await fetch(
+      `${env.backendApiUrl}/api/v1/auth/google`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken }),
+      }
+    );
 
-  cookieStore.set('accessToken', data.data.accessToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 60 * 60 * 24,
-  });
+    const data: GoogleLoginResponse = await backendResponse.json();
 
-  cookieStore.set('refreshToken', data.data.refreshToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 60 * 60 * 24 * 7,
-  });
+    console.log('Backend Status:', backendResponse.status);
+console.log('Backend Response:', data);
 
-  return NextResponse.json({
-    success: true,
-    message: data.message,
-    role: data.data.role,
-  });
+    if (!backendResponse.ok || !data.success || !data.data) {
+      return NextResponse.json(data, {
+        status: backendResponse.status,
+      });
+    }
+
+    const cookieStore = await cookies();
+
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    cookieStore.set('accessToken', data.data.accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24,
+    });
+
+    cookieStore.set('refreshToken', data.data.refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30,
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: data.message,
+      role: data.data.role,
+    });
+  } catch (error) {
+    console.error('Google login error:', error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      {
+        status: 500,
+      }
+    );
+  }
 }

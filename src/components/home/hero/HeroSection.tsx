@@ -6,7 +6,6 @@ import type { GearListItem } from '@/types/gear';
 import { HeroGearSlider } from '../HomeGearSlider';
 
 
-
 interface HeroSectionProps {
   /** Real featured gear (pass the same data FeaturedGearSection uses —
    * no separate fetch needed). Slider hides itself if empty. */
@@ -149,10 +148,10 @@ export function HeroSection({ featuredGear }: HeroSectionProps) {
           </div>
 
           {/* ============================================================ */}
-          {/* Right — real gear showcase                                    */}
+          {/* Right — real gear showcase (up to 10 items, rotating)         */}
           {/* ============================================================ */}
 
-          <HeroGearSlider items={featuredGear.slice(0, 5)} />
+          <HeroGearSlider items={featuredGear} />
         </div>
       </div>
     </section>
